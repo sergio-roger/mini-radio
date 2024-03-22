@@ -9,14 +9,19 @@ import { FileUtils } from "../utils/utils";
 export class Tail {
   private streamGet: EventEmitter;
   private currentSongGet: string = '';
+  private folderGet: string;
+
   private songsGet: string[];
+
   private sinksGet: Map<string, any>;
+  private stopGet: boolean = false;
 
   private static instanceGet: Tail;
 
   private constructor() {
     this.streamGet = new EventEmitter();
     this.sinksGet = new Map();
+    this.folderGet = environment.folder;
     this.songsGet = [];
   }
 
@@ -40,21 +45,43 @@ export class Tail {
     return this.songsGet;
   }
 
-  init(): void {
-    this.currentSongGet = FileUtils.readSong();
+  get stop() {
+    return this.stopGet;
   }
 
-  async startStreaming() {
+  get folder() {
+    return this.folderGet;
+  }
+
+  set folder(folder: string) {
+    this.folderGet = folder;
+  }
+
+  init(): void {
+    this.currentSongGet = FileUtils.readSong('vallenato');
+  }
+
+  stopStream(): void {
+    this.stopGet = true;
+  }
+
+  async startStreaming(): Promise<void> {
     await this.playLoop();
   }
 
   private async playLoop() {
+
+    if (this.songs.length === 0) {
+      console.log("Reproductor detenido");
+      return;
+    } 
+
     this.currentSongGet = this.songsGet.length
     ? this.removeFromTail(true)
     : this.currentSongGet;
 
     const bitRate = await this.getBitRate(this.currentSongGet);
-    const dir = `${cwd()}\\${environment.DIRECTORY}\\${this.currentSongGet}`;
+    const dir = this.getDirectyMusic();
     console.log("Reproducciendo", this.currentSongGet);
 
     const songReadable = createReadStream(dir);
@@ -80,7 +107,7 @@ export class Tail {
   }
 
   private async getBitRate(song: string) {
-    const dir = `${cwd()}\\${environment.DIRECTORY}\\${song}`;
+    const dir = this.getDirectyMusic();
     
     try {
       const { format } = await ffprobe(createReadStream(dir));
@@ -88,6 +115,10 @@ export class Tail {
     } catch (err) {
       return 128000; // reasonable default
     }
+  }
+
+  private getDirectyMusic(): string {
+    return `${cwd()}\\${environment.DIRECTORY}\\${this.folder}\\${this.currentSongGet}`;;
   }
 
   private broadcastToEverySink(chunk: any) {
@@ -109,5 +140,9 @@ export class Tail {
 
   addSongs(song: string) {
     this.songsGet.push(song);
+  }
+
+  clearSongs(): void {
+    this.songsGet = [];
   }
 }

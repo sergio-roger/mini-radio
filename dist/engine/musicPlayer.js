@@ -15,7 +15,6 @@ class MusicPlayer {
             this.tail.addSongs(song);
         });
         this.tail.init();
-        this.tail.startStreaming();
     }
 }
 exports.MusicPlayer = MusicPlayer;

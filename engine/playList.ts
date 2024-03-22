@@ -18,4 +18,8 @@ export class PlayList {
   fill(songs: string[]): void {
     this.songsGet.push(...songs);
   }
+
+  clear(): void {
+    this.songsGet = [];
+  }
 }

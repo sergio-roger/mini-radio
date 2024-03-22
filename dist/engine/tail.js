@@ -14,8 +14,10 @@ const utils_1 = require("../utils/utils");
 class Tail {
     constructor() {
         this.currentSongGet = '';
+        this.stopGet = false;
         this.streamGet = new stream_1.EventEmitter();
         this.sinksGet = new Map();
+        this.folderGet = environment_1.environment.folder;
         this.songsGet = [];
     }
     static get instance() {
@@ -33,18 +35,34 @@ class Tail {
     get songs() {
         return this.songsGet;
     }
+    get stop() {
+        return this.stopGet;
+    }
+    get folder() {
+        return this.folderGet;
+    }
+    set folder(folder) {
+        this.folderGet = folder;
+    }
     init() {
-        this.currentSongGet = utils_1.FileUtils.readSong();
+        this.currentSongGet = utils_1.FileUtils.readSong('vallenato');
+    }
+    stopStream() {
+        this.stopGet = true;
     }
     async startStreaming() {
         await this.playLoop();
     }
     async playLoop() {
+        if (this.songs.length === 0) {
+            console.log("Reproductor detenido");
+            return;
+        }
         this.currentSongGet = this.songsGet.length
             ? this.removeFromTail(true)
             : this.currentSongGet;
         const bitRate = await this.getBitRate(this.currentSongGet);
-        const dir = `${(0, process_1.cwd)()}\\${environment_1.environment.DIRECTORY}\\${this.currentSongGet}`;
+        const dir = this.getDirectyMusic();
         console.log("Reproducciendo", this.currentSongGet);
         const songReadable = (0, fs_1.createReadStream)(dir);
         const throttleTransformable = new throttle_1.default(bitRate / 8);
@@ -65,7 +83,7 @@ class Tail {
         return music !== null && music !== void 0 ? music : '';
     }
     async getBitRate(song) {
-        const dir = `${(0, process_1.cwd)()}\\${environment_1.environment.DIRECTORY}\\${song}`;
+        const dir = this.getDirectyMusic();
         try {
             const { format } = await (0, ffprobe_1.ffprobe)((0, fs_1.createReadStream)(dir));
             return parseInt(format.bit_rate);
@@ -73,6 +91,10 @@ class Tail {
         catch (err) {
             return 128000; // reasonable default
         }
+    }
+    getDirectyMusic() {
+        return `${(0, process_1.cwd)()}\\${environment_1.environment.DIRECTORY}\\${this.folder}\\${this.currentSongGet}`;
+        ;
     }
     broadcastToEverySink(chunk) {
         for (const [, sink] of this.sinksGet) {
@@ -90,6 +112,9 @@ class Tail {
     }
     addSongs(song) {
         this.songsGet.push(song);
+    }
+    clearSongs() {
+        this.songsGet = [];
     }
 }
 exports.Tail = Tail;

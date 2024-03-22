@@ -4,8 +4,9 @@ import { environment } from '../environment';
 
 export class FileUtils {
 
-  static readDir(): fs.Dirent[] {
-    const dir = environment.DIRECTORY;
+  static readDir(folder: string): fs.Dirent[] {
+    const directory = folder ? folder : environment.folder;
+    const dir = `${environment.DIRECTORY}\\${directory}`;
     return fs.readdirSync(dir, { withFileTypes: true });
   }
 
@@ -13,15 +14,17 @@ export class FileUtils {
     return item.isFile() && extname(item.name) === '.mp3';
   }
 
-  static readSong(): string {
-    const song = FileUtils.readDir()
+  static readSong(folder: string): string {
+    const directory = folder ? folder : environment.folder;
+    const song = FileUtils.readDir(directory)
       .filter(FileUtils.isMp3)[0].name;
 
     return song;
   }
 
-  static readSongs(): string[] {
-    const songs = FileUtils.readDir()
+  static readSongs(folder?: string): string[] {
+    const directory = folder ? folder : environment.folder;
+    const songs = FileUtils.readDir(directory)
       .filter(FileUtils.isMp3)
       .map((songItem) => songItem.name);
 

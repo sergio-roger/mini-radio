@@ -14,5 +14,8 @@ class PlayList {
     fill(songs) {
         this.songsGet.push(...songs);
     }
+    clear() {
+        this.songsGet = [];
+    }
 }
 exports.PlayList = PlayList;

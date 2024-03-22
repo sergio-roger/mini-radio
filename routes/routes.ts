@@ -1,5 +1,7 @@
 import { Server } from "@hapi/hapi";
 import { Tail } from "../engine/tail";
+import { PlayList } from "../engine/playList";
+import { FileUtils } from "../utils/utils";
 
 export interface AppHapi {
   sinkId: string;
@@ -14,9 +16,23 @@ export const routes = {
       handler: (_, h) => h.file("index.html"),
     });
 
+    server.route({
+      method: "GET",
+      path: "/start",
+      handler: (request, h) => {
+        const tail = Tail.instance;
+        tail.startStreaming();
+
+        return  {
+          success: true,
+          message: "Stream iniciado"
+        }
+      },
+    });
+
     // server.route({
     //   method: "GET",
-    //   path: "/{filename}",
+    //   path: "/start{filename}",
     //   handler: {
     //     file: (req) => req.params.filename,
     //   },
@@ -46,5 +62,32 @@ export const routes = {
         },
       },
     });
+
+    server.route({
+      method: 'GET',
+      path: '/stream/{folder}',
+      handler: (request, h) => {
+        const folder = (request.params.folder as string).trim();
+        const playList = PlayList.instance;
+        const tail = Tail.instance;
+
+        playList.clear();
+        playList.fill(FileUtils.readSongs(folder));
+
+        tail.clearSongs();
+        tail.folder = folder;
+
+        playList.songs.forEach(song => {
+          tail.addSongs(song);
+        });
+
+        console.table(tail.songs);
+
+        return {
+          success: true,
+          folder: folder
+        }
+      }
+    })
   },
 };

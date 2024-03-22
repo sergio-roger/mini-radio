@@ -20,6 +20,5 @@ export class MusicPlayer {
     });
 
     this.tail.init();
-    this.tail.startStreaming();
   }
 }

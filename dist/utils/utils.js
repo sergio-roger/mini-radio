@@ -8,20 +8,23 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = require("path");
 const environment_1 = require("../environment");
 class FileUtils {
-    static readDir() {
-        const dir = environment_1.environment.DIRECTORY;
+    static readDir(folder) {
+        const directory = folder ? folder : environment_1.environment.folder;
+        const dir = `${environment_1.environment.DIRECTORY}\\${directory}`;
         return fs_1.default.readdirSync(dir, { withFileTypes: true });
     }
     static isMp3(item) {
         return item.isFile() && (0, path_1.extname)(item.name) === '.mp3';
     }
-    static readSong() {
-        const song = FileUtils.readDir()
+    static readSong(folder) {
+        const directory = folder ? folder : environment_1.environment.folder;
+        const song = FileUtils.readDir(directory)
             .filter(FileUtils.isMp3)[0].name;
         return song;
     }
-    static readSongs() {
-        const songs = FileUtils.readDir()
+    static readSongs(folder) {
+        const directory = folder ? folder : environment_1.environment.folder;
+        const songs = FileUtils.readDir(directory)
             .filter(FileUtils.isMp3)
             .map((songItem) => songItem.name);
         return songs;
