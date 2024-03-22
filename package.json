@@ -1,0 +1,36 @@
+{
+  "name": "radio-custom",
+  "version": "1.0.0",
+  "description": "Mini radio web online",
+  "main": "app.js",
+  "scripts": {
+    "tsc": "tsc",
+    "start": "node dist/app.js",
+    "dev": "nodemon dist/app.js",
+    "build": "tsc -b"
+  },
+  "keywords": [
+    "radio",
+    "online",
+    "time-real",
+    "socket"
+  ],
+  "author": "Sergio roger",
+  "repository": {
+    "url": "https://github.com/sergio-roger/mini-radio"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@dropb/ffprobe": "^3.0.0",
+    "@hapi/hapi": "^21.3.7",
+    "@hapi/inert": "^7.1.0",
+    "dotenv": "^16.4.5",
+    "throttle": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/throttle": "^1.0.4",
+    "nodemon": "^3.1.0",
+    "typescript": "^5.4.2"
+  }
+}
